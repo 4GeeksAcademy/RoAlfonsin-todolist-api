@@ -32,7 +32,7 @@ const Home = () => {
 				<h1 className="display-2 fst-italic text-center mt-5">todos</h1>
 			</div>
 			<div className="container-fluid">
-				<ListOfTasks asks = {tasks}/>
+				<ListOfTasks myTasks = {tasks}/>
 			</div>
 		</div>
 	);
