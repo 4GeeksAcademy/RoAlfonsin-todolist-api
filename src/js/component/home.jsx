@@ -1,24 +1,39 @@
 import React from "react";
+import { useState } from "react";
+import ListOfTasks from "./listOfTasks";
 
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
+
 
 //create your first component
 const Home = () => {
+
+	const [tasks, setTask] = useState(["a","b","c"]);
+
+	function eraseTask(taskDescription){
+		let new_tasks = [];
+		for (let index in tasks){
+			if (tasks[index] != taskDescription) new_tasks.push(tasks[index]);
+		}
+		setTask(new_tasks);
+	}
+
+	window.addEventListener("click", (e) => {
+		if (e.target.type == "button"){
+			let taskDescription = e.target.parentElement.parentElement.id;
+			eraseTask(taskDescription);
+			console.log(taskDescription);
+		}
+		
+	});
+
 	return (
-		<div className="text-center">
-			<h1 className="text-center mt-5">Hello Rigo!</h1>
-			<p>
-				<img src={rigoImage} />
-			</p>
-			<a href="#" className="btn btn-success">
-				If you see this green button... bootstrap is working...
-			</a>
-			<p>
-				Made by{" "}
-				<a href="http://www.4geeksacademy.com">4Geeks Academy</a>, with
-				love!
-			</p>
+		<div className="container">
+			<div className="text-center">
+				<h1 className="display-2 fst-italic text-center mt-5">todos</h1>
+			</div>
+			<div className="container-fluid">
+				<ListOfTasks asks = {tasks}/>
+			</div>
 		</div>
 	);
 };
