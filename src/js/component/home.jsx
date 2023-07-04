@@ -1,8 +1,11 @@
 import React from "react";
 import ListElement from "./listElement";
+import CleanButton from "./cleanButton";
 import { useState, useEffect } from "react";
 
 //create your first component
+let noList = false;
+
 const Home = () => {
 
 	const [tasks, setTasks] = useState([]);
@@ -31,8 +34,10 @@ const Home = () => {
 			return r.json();
 		})
 		.then(response => {
+			console.log(response);
 			if (response.msg == "This use does not exists, first call the POST method first to create the list for this username"){
 				fetch("https://assets.breatheco.de/apis/fake/todos/user/roalfonsin", createList)
+				setTasks(["sample task"]);
 			}
 			else{
 				console.log(response);
@@ -47,32 +52,69 @@ const Home = () => {
 	},[])
 
 	function addTask(e){
-
 		if (e.key == "Enter")
 			if (newTask != ""){
-				let formatTasksForServer = [];
-				for (let aTask in tasks){
-					formatTasksForServer.push({label: tasks[aTask], done: false});
+				if (noList){
+					let createList = {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify([])
+					};
+					fetch("https://assets.breatheco.de/apis/fake/todos/user/roalfonsin", createList)
+					.then(x => {
+						let formatTasksForServer = [];
+						for (let aTask in tasks){
+							formatTasksForServer.push({label: tasks[aTask], done: false});
+						}
+						formatTasksForServer.push({label: newTask, done: false});
+						let updateList = {
+							method: "PUT",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify(formatTasksForServer)
+						};
+						console.log(updateList.body);
+						fetch("https://assets.breatheco.de/apis/fake/todos/user/roalfonsin", updateList)
+						.then (r => {
+							return r.json();
+						})
+						.then (response => {
+							console.log(response);
+						});
+						
+						setTasks([...tasks, newTask]);
+						setNewTask("");
+						});
 				}
-				formatTasksForServer.push({label: newTask, done: false});
-				let updateList = {
-					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify(formatTasksForServer)
-				};
-				console.log(updateList.body);
-				fetch("https://assets.breatheco.de/apis/fake/todos/user/roalfonsin", updateList)
-				.then (r => {
-					return r.json();
-				})
-				.then (response => {
-					console.log(response);
-				});
+				else{
+					let formatTasksForServer = [];
+					for (let aTask in tasks){
+						formatTasksForServer.push({label: tasks[aTask], done: false});
+					}
+					formatTasksForServer.push({label: newTask, done: false});
+					let updateList = {
+						method: "PUT",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(formatTasksForServer)
+					};
+					console.log(updateList.body);
+					fetch("https://assets.breatheco.de/apis/fake/todos/user/roalfonsin", updateList)
+					.then (r => {
+						return r.json();
+					})
+					.then (response => {
+						console.log(response);
+					});
+					
+					setTasks([...tasks, newTask]);
+					setNewTask("");
+				}
 				
-				setTasks([...tasks, newTask]);
-				setNewTask("");
 			}
 	}
 
@@ -88,6 +130,8 @@ const Home = () => {
 			for (let aTask in newTasks){
 				formatTasksForServer.push({label: tasks[aTask], done: false});
 			}
+			if (formatTasksForServer.length == 0)
+				formatTasksForServer.push({label: "sample task", done:false});
 			let updateList = {
 				method: "PUT",
 				headers: {
@@ -106,6 +150,27 @@ const Home = () => {
 
 
 			setTasks(newTasks);
+		}
+	}
+
+	function cleanTasks(e){
+		let targetId = e.target.id;
+		if (targetId == "cleanTasks"){
+			let deleteList = {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+				}
+			};
+			fetch("https://assets.breatheco.de/apis/fake/todos/user/roalfonsin", deleteList)
+			.then (r => {
+				return r.json();
+			})
+			.then (response => {
+				console.log(response);
+			});
+			setTasks([]);
+			noList = true;
 		}
 	}
 
@@ -131,6 +196,9 @@ const Home = () => {
 				<ListElement
 					tasks={tasks}
 				/>
+			</div>
+			<div className="container-flud m-2 d-flex justify-content-center" onClick={cleanTasks}>
+				<CleanButton/>
 			</div>
 		
 		</div>
